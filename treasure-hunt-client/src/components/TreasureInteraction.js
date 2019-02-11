@@ -26,17 +26,25 @@ class TreasureInteraction extends Component {
 
     getItem = (e, item) => {
         e.preventDefault();
+        if (item === "" || item === undefined) {
+            this.setState({ ...this.state, getMessage: "It's not possible to get nothing, unfortunately."})
+            return
+        }
         axios.post(getURL, {"name": item}, {headers: headers})
             .then((res) => {
                 console.log(res)
                 this.setState({ ...this.state, getItem: "", getMessage: res.data.messages[0]})
-                
+
             })
             .catch((err) => console.log(err))
     }
 
     dropItem = (e, item) => {
         e.preventDefault();
+        if (item === "" || item === undefined) {
+            this.setState({ ...this.state, dropMessage: "It's not possible to drop nothing, unfortunately."})
+            return
+        }
         axios.post(dropURL, {"name": item}, {headers: headers})
         .then((res) => {
             console.log(res)
