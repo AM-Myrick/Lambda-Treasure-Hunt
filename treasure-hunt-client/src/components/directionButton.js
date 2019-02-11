@@ -15,10 +15,15 @@ class DirectionButton extends Component {
         }
     }
 
+    updateMap = (k, v) => localStorage.setItem(k, v)
+
     move = (e, dir) => {
         e.preventDefault()
         axios.post(URL, {"direction": dir}, {headers: headers})
-            .then((res) => console.log(res))
+            .then((res) => {
+                console.log(res)
+                this.updateMap(res.data.room_id, res.data.coordinates)
+            })
             .catch((err) => console.log(err))
     }
     render() {
