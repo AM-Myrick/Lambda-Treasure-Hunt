@@ -7,6 +7,8 @@ const headers = {
     'Authorization': `Token ${token}`
 }
 
+let graph = {}
+
 class DirectionButton extends Component {
     constructor(props) {
         super(props);
