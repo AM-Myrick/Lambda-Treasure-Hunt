@@ -34,10 +34,10 @@ export const fetchRoom = () => dispatch => {
     })
 }
 
-export const changeRoom = () => dispatch => {
+export const changeRoom = (dir) => dispatch => {
     dispatch({type: CHANGE_ROOM});
     axios
-        .post(moveURL, {headers: headers})
+        .post(moveURL, {"direction": dir}, {headers: headers})
         .then(res => {
             dispatch({type: CHANGE_ROOM_SUCCESS, payload: res.data})
         })
@@ -46,10 +46,10 @@ export const changeRoom = () => dispatch => {
         })
 }
 
-export const getItem = () => dispatch => {
+export const getItem = (item) => dispatch => {
     dispatch({type: GET_ITEM});
     axios
-        .post(getURL, {headers: headers})
+        .post(getURL, {"name": item}, {headers: headers})
         .then(res => {
             dispatch({type: GET_ITEM_SUCCESS, payload: res.data})
         })
@@ -58,14 +58,14 @@ export const getItem = () => dispatch => {
         })
 }
 
-export const dropItem = () => dispatch => {
+export const dropItem = (item) => dispatch => {
     dispatch({type: DROP_ITEM});
     axios
-        .post(dropURL, {headers: headers})
+        .post(dropURL, {"name": item}, {headers: headers})
         .then(res => {
             dispatch({type: DROP_ITEM_SUCCESS, payload: res.data})
         })
-        .catch(res => {
+        .catch(error => {
             dispatch({type: DROP_ITEM_FAILURE, payload: error})
         })
 }
