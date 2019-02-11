@@ -1,3 +1,5 @@
+[Trello Link](https://trello.com/b/bTLHqtnY/lambda-treasure-hunt)
+
 # Lambda Treasure Hunt
 
 Welcome to the first annual Lambda Treasure Hunt!
