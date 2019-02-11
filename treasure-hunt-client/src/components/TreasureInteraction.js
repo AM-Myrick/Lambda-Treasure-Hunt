@@ -1,12 +1,6 @@
 import React, { Component } from 'react';
-import axios from "axios";
-const token = process.env.REACT_APP_TOKEN;
-const dropURL = "https://lambda-treasure-hunt.herokuapp.com/api/adv/drop/"
-const getURL = "https://lambda-treasure-hunt.herokuapp.com/api/adv/take/"
-const headers = {
-    'Content-Type': 'application/json',
-    'Authorization': `Token ${token}`
-}
+import { connect } from "react-redux";
+import { getItem, dropItem, prayAtShrine } from "../actions";
 
 class TreasureInteraction extends Component {
     constructor(props) {
@@ -14,8 +8,6 @@ class TreasureInteraction extends Component {
         this.state = {
             getItem: "",
             dropItem: "",
-            getMessage: "",
-            dropMessage: "",
         }
     }
 
@@ -24,39 +16,10 @@ class TreasureInteraction extends Component {
         this.setState({ ...this.state, [name]: value })
     }
 
-    getItem = (e, item) => {
-        e.preventDefault();
-        if (item === "" || item === undefined) {
-            this.setState({ ...this.state, getMessage: "It's not possible to get nothing, unfortunately."})
-            return
-        }
-        axios.post(getURL, {"name": item}, {headers: headers})
-            .then((res) => {
-                console.log(res)
-                this.setState({ ...this.state, getItem: "", getMessage: res.data.messages[0]})
-
-            })
-            .catch((err) => console.log(err))
-    }
-
-    dropItem = (e, item) => {
-        e.preventDefault();
-        if (item === "" || item === undefined) {
-            this.setState({ ...this.state, dropMessage: "It's not possible to drop nothing, unfortunately."})
-            return
-        }
-        axios.post(dropURL, {"name": item}, {headers: headers})
-        .then((res) => {
-            console.log(res)
-            this.setState({ ...this.state, dropItem: "", dropMessage: res.data.messages[0]})
-        })
-            .catch((err) => console.log(err))
-    }
-
     render() {
         return (
             <div>
-                <form onSubmit={e => this.getItem(e, this.state.getItem)}>
+                <form onSubmit={e => this.props.getItem(e, this.state.getItem)}>
                 <label>Pick up item:</label>
                     <input 
                         type="text" 
@@ -65,12 +28,9 @@ class TreasureInteraction extends Component {
                         className="input"
                         value={this.state.getItem}
                         onChange={this.changeHandler} />
-                    <button onClick={e => this.getItem(e, this.state.getItem)}>Pick Up</button>  
+                    <button onClick={e => this.props.getItem(e, this.state.getItem)}>Pick Up</button>  
                 </form>
-                { this.state.getMessage ?
-                    (<h4>{this.state.getMessage}</h4>):
-                    undefined}
-                <form onSubmit={e => this.dropItem(e, this.state.dropItem)}>
+                <form onSubmit={e => this.props.dropItem(e, this.state.dropItem)}>
                     <label>Drop item:</label>
                     <input 
                         type="text" 
@@ -79,14 +39,25 @@ class TreasureInteraction extends Component {
                         className="input"
                         value={this.state.dropItem}
                         onChange={this.changeHandler} />
-                    <button onClick={e => this.dropItem(e, this.state.dropItem)}>Drop</button>
+                    <button onClick={e => this.props.dropItem(e, this.state.dropItem)}>Drop</button>
                 </form>
-                { this.state.dropMessage ?
-                    (<h4>{this.state.dropMessage}</h4>):
+                <button onClick={e => this.props.prayAtShrine(e)}>Pray</button>
+                { this.props.message ?
+                    (<h4>{this.props.message}</h4>):
                     undefined}
             </div>
         );
     }
 }
 
-export default TreasureInteraction;
+const mapStateToProps = state => {
+    return {
+        gettingItem: state.gettingItem,
+        droppingItem: state.droppingItem,
+        message: state.message
+    }
+}
+export default connect(
+    mapStateToProps,
+    { getItem, dropItem, prayAtShrine }
+)(TreasureInteraction);

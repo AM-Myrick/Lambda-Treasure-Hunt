@@ -11,12 +11,17 @@ export const GET_ITEM_FAILURE = "GET_ITEM_FAILURE";
 export const DROP_ITEM = "DROP_ITEM";
 export const DROP_ITEM_SUCCESS = "DROP_ITEM_SUCCESS";
 export const DROP_ITEM_FAILURE = "DROP_ITEM_FAILURE";
+export const PRAY = "PRAY";
+export const PRAY_SUCCESS = "PRAY_SUCCESS";
+export const PRAY_FAILURE = "PRAY_FAILURE";
 
 const token = process.env.REACT_APP_TOKEN;
 const curRoomURL = "https://lambda-treasure-hunt.herokuapp.com/api/adv/init/"
 const moveURL = "https://lambda-treasure-hunt.herokuapp.com/api/adv/move/"
 const dropURL = "https://lambda-treasure-hunt.herokuapp.com/api/adv/drop/"
 const getURL = "https://lambda-treasure-hunt.herokuapp.com/api/adv/take/"
+const shrineURL = "https://lambda-treasure-hunt.herokuapp.com/api/adv/pray/"
+
 const headers = {
     'Content-Type': 'application/json',
     'Authorization': `Token ${token}`
@@ -47,8 +52,8 @@ export const changeRoom = (e, dir) => dispatch => {
         })
 }
 
-export const getItem = (item) => dispatch => {
-    
+export const getItem = (e, item) => dispatch => {
+    e.preventDefault()
     dispatch({type: GET_ITEM});
     axios
         .post(getURL, {"name": item}, {headers: headers})
@@ -60,7 +65,8 @@ export const getItem = (item) => dispatch => {
         })
 }
 
-export const dropItem = (item) => dispatch => {
+export const dropItem = (e, item) => dispatch => {
+    e.preventDefault()
     dispatch({type: DROP_ITEM});
     axios
         .post(dropURL, {"name": item}, {headers: headers})
@@ -69,5 +75,18 @@ export const dropItem = (item) => dispatch => {
         })
         .catch(error => {
             dispatch({type: DROP_ITEM_FAILURE, payload: error})
+        })
+}
+
+export const prayAtShrine = (e) => dispatch => {
+    e.preventDefault();
+    dispatch({type: PRAY});
+    axios
+        .post(shrineURL, null, {headers: headers})
+        .then(res => {
+            dispatch({type: PRAY_SUCCESS, payload: res.data})
+        })
+        .catch(error => {
+            dispatch({type: PRAY_FAILURE, payload: error})
         })
 }

@@ -2,7 +2,8 @@ import { FETCH_ROOM, FETCH_ROOM_SUCCESS,
         FETCH_ROOM_FAILURE, CHANGE_ROOM,
         CHANGE_ROOM_SUCCESS, CHANGE_ROOM_FAILURE,
         GET_ITEM, GET_ITEM_SUCCESS, GET_ITEM_FAILURE,
-        DROP_ITEM, DROP_ITEM_SUCCESS, DROP_ITEM_FAILURE } from "../actions";
+        DROP_ITEM, DROP_ITEM_SUCCESS, DROP_ITEM_FAILURE,
+        PRAY, PRAY_SUCCESS, PRAY_FAILURE, } from "../actions";
 
 const initialState = {
     fetchingRoom: false,
@@ -54,7 +55,7 @@ const treasureHuntReducer = (state = initialState, action) => {
         return {...state, gettingItem: true};
 
     case GET_ITEM_SUCCESS:
-        return {...state, gettingItem: false, message: action.payload.message[0]}
+        return {...state, gettingItem: false, message: action.payload.messages[0]}
 
     case GET_ITEM_FAILURE:
         return {...state, gettingItem: false, error: action.payload};
@@ -63,10 +64,19 @@ const treasureHuntReducer = (state = initialState, action) => {
         return {...state, droppingItem: true};
     
     case DROP_ITEM_SUCCESS:
-        return {...state, droppingItem: false, message: action.payload.message[0]}
+        return {...state, droppingItem: false, message: action.payload.messages[0]}
 
     case DROP_ITEM_FAILURE:
         return {...state, droppingItem: false, error: action.payload}
+
+    case PRAY:
+        return {...state, praying: true}
+
+    case PRAY_SUCCESS:
+        return {...state, praying: false}
+
+    case PRAY_FAILURE:
+        return {...state, praying: false}
 
     default:
       return state
