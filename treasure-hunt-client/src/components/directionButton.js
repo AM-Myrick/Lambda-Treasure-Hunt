@@ -1,13 +1,6 @@
 import React, { Component } from 'react';
-import axios from "axios";
-const token = process.env.REACT_APP_TOKEN;
-const URL = "https://lambda-treasure-hunt.herokuapp.com/api/adv/move/"
-const headers = {
-    'Content-Type': 'application/json',
-    'Authorization': `Token ${token}`
-}
-
-let graph = {}
+import { connect } from "react-redux";
+import { changeRoom } from "../actions";
 
 class DirectionButton extends Component {
     constructor(props) {
@@ -17,28 +10,20 @@ class DirectionButton extends Component {
         }
     }
 
-    updateMap = (k, v) => {
-        localStorage.setItem(k, v)
-        graph[k] = v.split("")
-        console.log(graph)
-    }
-
-    move = (e, dir) => {
-        e.preventDefault()
-        axios.post(URL, {"direction": dir}, {headers: headers})
-            .then((res) => {
-                console.log(res.data)
-                this.updateMap(res.data.room_id, res.data.coordinates)
-            })
-            .catch((err) => console.log(err))
-    }
     render() {
         return (
-            <button onClick={e => this.move(e, this.props.direction[0].toLowerCase())}>{this.props.direction}</button>
+            <button onClick={e => this.props.changeRoom(e, this.props.direction[0].toLowerCase())}>{this.props.direction}</button>
         );
     }
 
 }
 
-
-export default DirectionButton
+const mapStateToProps = state => {
+    return {
+        changingRoom: state.changingRoom
+    }
+}
+export default connect(
+    mapStateToProps,
+    { changeRoom }
+)(DirectionButton);

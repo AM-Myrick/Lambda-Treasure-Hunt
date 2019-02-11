@@ -34,7 +34,8 @@ export const fetchRoom = () => dispatch => {
     })
 }
 
-export const changeRoom = (dir) => dispatch => {
+export const changeRoom = (e, dir) => dispatch => {
+    e.preventDefault()
     dispatch({type: CHANGE_ROOM});
     axios
         .post(moveURL, {"direction": dir}, {headers: headers})
@@ -47,6 +48,7 @@ export const changeRoom = (dir) => dispatch => {
 }
 
 export const getItem = (item) => dispatch => {
+    
     dispatch({type: GET_ITEM});
     axios
         .post(getURL, {"name": item}, {headers: headers})
