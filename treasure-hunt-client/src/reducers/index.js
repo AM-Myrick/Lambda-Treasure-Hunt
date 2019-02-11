@@ -3,13 +3,16 @@ import { FETCH_ROOM, FETCH_ROOM_SUCCESS,
         CHANGE_ROOM_SUCCESS, CHANGE_ROOM_FAILURE,
         GET_ITEM, GET_ITEM_SUCCESS, GET_ITEM_FAILURE,
         DROP_ITEM, DROP_ITEM_SUCCESS, DROP_ITEM_FAILURE,
-        PRAY, PRAY_SUCCESS, PRAY_FAILURE, } from "../actions";
+        PRAY, PRAY_SUCCESS, PRAY_FAILURE,
+        SELL, SELL_SUCCESS, SELL_FAILURE } from "../actions";
 
 const initialState = {
     fetchingRoom: false,
     changingRoom: false,
     gettingItem: false,
     droppingItem: false,
+    praying: false,
+    sellingItem: false,
     message: "",
     title: "",
     cooldown: "",
@@ -76,7 +79,16 @@ const treasureHuntReducer = (state = initialState, action) => {
         return {...state, praying: false}
 
     case PRAY_FAILURE:
-        return {...state, praying: false}
+        return {...state, praying: false, error: action.payload}
+
+    case SELL:
+        return {...state, sellingItem: true}
+    
+    case SELL_SUCCESS:
+        return {...state, sellingItem: false}
+
+    case SELL_FAILURE:
+        return {...state, sellingItem: false, error: action.payload}
 
     default:
       return state

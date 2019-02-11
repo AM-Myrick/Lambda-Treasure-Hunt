@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from "react-redux";
-import { getItem, dropItem, prayAtShrine } from "../actions";
+import { getItem, dropItem, sellItem, prayAtShrine } from "../actions";
 
 class TreasureInteraction extends Component {
     constructor(props) {
@@ -8,6 +8,7 @@ class TreasureInteraction extends Component {
         this.state = {
             getItem: "",
             dropItem: "",
+            sellItem: ""
         }
     }
 
@@ -41,6 +42,17 @@ class TreasureInteraction extends Component {
                         onChange={this.changeHandler} />
                     <button onClick={e => this.props.dropItem(e, this.state.dropItem)}>Drop</button>
                 </form>
+                <form onSubmit={e => this.props.sellItem(e, this.state.sellItem)}>
+                    <label>Sell item:</label>
+                    <input 
+                        type="text" 
+                        id="sellItem" 
+                        name="sellItem" 
+                        className="input"
+                        value={this.state.sellItem}
+                        onChange={this.changeHandler} />
+                    <button onClick={e => this.props.sellItem(e, this.state.sellItem)}>Sell</button>
+                </form>
                 <button onClick={e => this.props.prayAtShrine(e)}>Pray</button>
                 { this.props.message ?
                     (<h4>{this.props.message}</h4>):
@@ -59,5 +71,5 @@ const mapStateToProps = state => {
 }
 export default connect(
     mapStateToProps,
-    { getItem, dropItem, prayAtShrine }
+    { getItem, dropItem, sellItem, prayAtShrine }
 )(TreasureInteraction);

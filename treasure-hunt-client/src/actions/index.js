@@ -14,6 +14,9 @@ export const DROP_ITEM_FAILURE = "DROP_ITEM_FAILURE";
 export const PRAY = "PRAY";
 export const PRAY_SUCCESS = "PRAY_SUCCESS";
 export const PRAY_FAILURE = "PRAY_FAILURE";
+export const SELL = "SELL";
+export const SELL_SUCCESS = "SELL_SUCCESS";
+export const SELL_FAILURE = "SELL_FAILURE";
 
 const token = process.env.REACT_APP_TOKEN;
 const curRoomURL = "https://lambda-treasure-hunt.herokuapp.com/api/adv/init/"
@@ -21,6 +24,7 @@ const moveURL = "https://lambda-treasure-hunt.herokuapp.com/api/adv/fly/"
 const dropURL = "https://lambda-treasure-hunt.herokuapp.com/api/adv/drop/"
 const getURL = "https://lambda-treasure-hunt.herokuapp.com/api/adv/take/"
 const shrineURL = "https://lambda-treasure-hunt.herokuapp.com/api/adv/pray/"
+const sellURL = "https://lambda-treasure-hunt.herokuapp.com/api/adv/sell/"
 
 const headers = {
     'Content-Type': 'application/json',
@@ -88,5 +92,18 @@ export const prayAtShrine = (e) => dispatch => {
         })
         .catch(error => {
             dispatch({type: PRAY_FAILURE, payload: error})
+        })
+}
+
+export const sellItem = (e, item) => dispatch => {
+    e.preventDefault();
+    dispatch({type: SELL});
+    axios
+        .post(sellURL, {"name": item, "confirm": "yes"}, {headers: headers})
+        .then(res => {
+            dispatch({type: SELL_SUCCESS, payload: res.data})
+        })
+        .catch(error => {
+            dispatch({type: SELL_FAILURE, payload: error})
         })
 }
