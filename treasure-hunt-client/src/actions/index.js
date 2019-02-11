@@ -17,7 +17,7 @@ export const PRAY_FAILURE = "PRAY_FAILURE";
 
 const token = process.env.REACT_APP_TOKEN;
 const curRoomURL = "https://lambda-treasure-hunt.herokuapp.com/api/adv/init/"
-const moveURL = "https://lambda-treasure-hunt.herokuapp.com/api/adv/move/"
+const moveURL = "https://lambda-treasure-hunt.herokuapp.com/api/adv/fly/"
 const dropURL = "https://lambda-treasure-hunt.herokuapp.com/api/adv/drop/"
 const getURL = "https://lambda-treasure-hunt.herokuapp.com/api/adv/take/"
 const shrineURL = "https://lambda-treasure-hunt.herokuapp.com/api/adv/pray/"
