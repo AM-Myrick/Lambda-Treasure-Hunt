@@ -1,4 +1,6 @@
 db.sqlite3
 .env
+.env.development
 Lambda-Treasure-Hunt.sublime-*
 *.pyc
+treasure-hunt-client/src/.env.development
