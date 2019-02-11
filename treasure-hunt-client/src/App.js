@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import DirectionButton from './components/directionButton.js';
+import TreasureInteraction from "./components/TreasureInteraction"
 
 class App extends Component {
 
@@ -15,6 +16,7 @@ class App extends Component {
         <DirectionButton direction="South" />
         <DirectionButton direction="East" />
         <DirectionButton direction="West" />
+        <TreasureInteraction />
       </div>
     );
   }

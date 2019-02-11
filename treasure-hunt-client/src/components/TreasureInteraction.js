@@ -27,44 +27,51 @@ class TreasureInteraction extends Component {
     getItem = (e, item) => {
         e.preventDefault();
         axios.post(getURL, {"name": item}, {headers: headers})
-            .then((res) => console.log(res))
+            .then((res) => {
+                console.log(res)
+                this.setState({ ...this.state, getItem: "", getMessage: res.data.messages[0]})
+                
+            })
             .catch((err) => console.log(err))
     }
 
     dropItem = (e, item) => {
         e.preventDefault();
         axios.post(dropURL, {"name": item}, {headers: headers})
-            .then((res) => console.log(res))
+        .then((res) => {
+            console.log(res)
+            this.setState({ ...this.state, dropItem: "", dropMessage: res.data.messages[0]})
+        })
             .catch((err) => console.log(err))
     }
 
     render() {
         return (
-            <div className="login">
+            <div>
                 <form onSubmit={e => this.getItem(e, this.state.getItem)}>
                 <label>Pick up item:</label>
                     <input 
                         type="text" 
-                        id="username" 
-                        name="username" 
+                        id="getItem" 
+                        name="getItem" 
                         className="input"
                         value={this.state.getItem}
                         onChange={this.changeHandler} />
-                    
+                    <button onClick={e => this.getItem(e, this.state.getItem)}>Pick Up</button>  
                 </form>
                 { this.state.getMessage ?
                     (<h4>{this.state.getMessage}</h4>):
                     undefined}
-                <form onSubmit={this.submitHandler}>
+                <form onSubmit={e => this.dropItem(e, this.state.dropItem)}>
                     <label>Drop item:</label>
                     <input 
                         type="text" 
-                        id="username" 
-                        name="username" 
+                        id="dropItem" 
+                        name="dropItem" 
                         className="input"
                         value={this.state.dropItem}
                         onChange={this.changeHandler} />
-                    
+                    <button onClick={e => this.dropItem(e, this.state.dropItem)}>Drop</button>
                 </form>
                 { this.state.dropMessage ?
                     (<h4>{this.state.dropMessage}</h4>):
