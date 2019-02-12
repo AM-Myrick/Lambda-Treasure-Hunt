@@ -23,10 +23,10 @@ class WorldInteraction extends Component {
         let visited = new Set();
 
         while (q.length > 0) {
-            path = q.shift();
-            v = path[-1];
+            let path = q.shift();
+            let v = path[-1];
             if (Object.values(graph[v]).includes("?")) {
-                new_path = Array.from(path)
+                let new_path = Array.from(path)
                 new_path.push(v)
                 return new_path
             }
