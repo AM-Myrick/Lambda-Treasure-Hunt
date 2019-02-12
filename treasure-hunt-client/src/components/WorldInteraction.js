@@ -17,6 +17,47 @@ class WorldInteraction extends Component {
         this.setState({ ...this.state, [name]: value })
     }
 
+    bfs = (start) => {
+        let q = [];
+        q.push(start);
+        let visited = new Set();
+
+        while (q.length > 0) {
+            path = q.shift();
+            v = path[-1];
+            if (Object.values(graph[v]).includes("?")) {
+                new_path = Array.from(path)
+                new_path.push(v)
+                return new_path
+            }
+            if (visited.has(v) === false) {
+                visited.add(v);
+
+            }
+        }
+    }
+
+    // def bfs_path(starting_vertex_id):
+    //     q = Queue()
+    //     q.enqueue([starting_vertex_id])
+    //     visited = set()
+    //     while q.len() > 0:
+    //         path = q.dequeue()
+    //         v = path[-1]
+    //         print("v", v)
+    //         print("path", path)
+    //         if "?" in list(graph[v].values()):
+    //             new_path = list(path)
+    //             new_path.append(v)
+    //             return new_path
+    //         if v not in visited:
+    //             visited.add(v)
+    //             for k, v in graph[v].items():
+    //                 new_path = list(path)
+    //                 new_path.append(v)
+    //                 q.enqueue(new_path)
+    //     return None
+
     automatedTraversal = (e) => {
         let roomID = this.props.curRoomID;
         e.preventDefault();
@@ -27,12 +68,19 @@ class WorldInteraction extends Component {
                 this.props.changeRoom(e, exit)
                 break;
             }
-        // while (Object.keys(graph).length < 10) {
-        
-        //     }
         }
-        if (Object.keys(graph).length < 20) {
+        if (Object.values(graph[roomID]).includes('?') === false) {
+            for (let key in graph) {
+                if (Object.values(graph[key]).includes("?")) {
+
+                }
+            }
+        }
+        
+        if (Object.keys(graph).length < 30) {
             setTimeout(this.automatedTraversal, this.props.cooldown * 1000, e)
+        } else {
+            return;
         }
     }
 
