@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from "react-redux";
-import { getItem, dropItem, sellItem, prayAtShrine } from "../actions";
+import { getItem, dropItem, sellItem, prayAtShrine, changeRoom, graph } from "../actions";
 
-class TreasureInteraction extends Component {
+class WorldInteraction extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -16,6 +16,47 @@ class TreasureInteraction extends Component {
         const { name, value } = e.target;
         this.setState({ ...this.state, [name]: value })
     }
+
+    automatedTraversal = (e) => {
+        let roomID = this.props.curRoomID;
+        e.preventDefault();
+        console.log(graph[roomID])
+        while (Object.keys(graph).length < 10) {
+            for (let e in graph[roomID]) {
+                if (graph[roomID][e] === "?") {
+                    console.log(e);
+                    setTimeout(changeRoom(e), this.props.cooldown * 1000);
+                }
+            }
+        }
+    }
+
+    // for e in graph[player.currentRoom.id]:
+    //         if graph[player.currentRoom.id][e] == "?":
+    //             print(player.currentRoom.id, graph[player.currentRoom.id], e)
+    //             move = e
+    //             traversalPath.append(move)
+    //             player.travel(move)
+    //             visited_rooms.add(player.currentRoom.id)
+    //             populateGraph(player.currentRoom)
+    //             updateGraph(lastRoom.id, player.currentRoom.id, move)
+    //             lastRoom = player.currentRoom
+    //             break
+    //         if "?" not in list(graph[player.currentRoom.id].values()):
+    //             for k, v in graph.items():
+    //                 if "?" in v.values():
+    //                     path = bfs_path(player.currentRoom.id)
+    //                     print(path)
+    //                     for i in path:
+    //                         for k, v in graph[player.currentRoom.id].items():
+    //                             if v == i:
+    //                                 traversalPath.append(k)
+    //                                 player.travel(k)
+    //                                 visited_rooms.add(player.currentRoom.id)
+    //                                 populateGraph(player.currentRoom)
+    //                                 updateGraph(lastRoom.id, player.currentRoom.id, k)
+    //                                 lastRoom = player.currentRoom
+    //                                 if "?" in list(graph[player.currentRoom.id].values()):
 
     render() {
         return (
@@ -54,6 +95,7 @@ class TreasureInteraction extends Component {
                     <button onClick={e => this.props.sellItem(e, this.state.sellItem)}>Sell</button>
                 </form>
                 <button onClick={e => this.props.prayAtShrine(e)}>Pray</button>
+                <button onClick={e => this.automatedTraversal(e)}>Explore</button>
                 { this.props.message ?
                     (<h4>{this.props.message}</h4>):
                     undefined}
@@ -66,10 +108,12 @@ const mapStateToProps = state => {
     return {
         gettingItem: state.gettingItem,
         droppingItem: state.droppingItem,
-        message: state.message
+        cooldown: state.cooldown,
+        message: state.message,
+        curRoomID: state.curRoomID,
     }
 }
 export default connect(
     mapStateToProps,
-    { getItem, dropItem, sellItem, prayAtShrine }
-)(TreasureInteraction);
+    { getItem, dropItem, sellItem, prayAtShrine, changeRoom }
+)(WorldInteraction);

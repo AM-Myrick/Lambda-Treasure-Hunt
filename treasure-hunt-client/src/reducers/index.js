@@ -13,6 +13,7 @@ const initialState = {
     droppingItem: false,
     praying: false,
     sellingItem: false,
+    curRoomID: "",
     coordinates: "",
     message: "",
     title: "",
@@ -31,6 +32,7 @@ const treasureHuntReducer = (state = initialState, action) => {
     case FETCH_ROOM_SUCCESS:
       return {...state, 
             fetchingRoom: false,
+            curRoomID: action.payload.room_id,
             title: action.payload.title, 
             coordinates: action.payload.coordinates,
             cooldown: action.payload.cooldown, 
@@ -47,6 +49,7 @@ const treasureHuntReducer = (state = initialState, action) => {
     case CHANGE_ROOM_SUCCESS:
         return {...state,
             changingRoom: false,
+            curRoomID: action.payload.room_id,
             title: action.payload.title, 
             coordinates: action.payload.coordinates,
             cooldown: action.payload.cooldown, 

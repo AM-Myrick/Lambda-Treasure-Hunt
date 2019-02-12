@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import DirectionButton from './components/directionButton.js';
-import TreasureInteraction from "./components/TreasureInteraction";
+import WorldInteraction from "./components/WorldInteraction";
 import GameMapStatus from "./components/GameMapStatus";
 
 class App extends Component {
@@ -14,7 +14,7 @@ class App extends Component {
         <DirectionButton direction="South" />
         <DirectionButton direction="East" />
         <DirectionButton direction="West" />
-        <TreasureInteraction />
+        <WorldInteraction />
         <GameMapStatus />
       </div>
     );

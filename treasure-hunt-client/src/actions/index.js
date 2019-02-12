@@ -31,8 +31,8 @@ const headers = {
     'Authorization': `Token ${token}`
 }
 
-let graph = {}
-let coordinates = {}
+export let graph = {}
+// let coordinates = {}
 
 export const fetchRoom = () => dispatch => {
   dispatch({type: FETCH_ROOM });
