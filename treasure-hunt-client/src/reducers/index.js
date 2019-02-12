@@ -48,6 +48,7 @@ const treasureHuntReducer = (state = initialState, action) => {
         return {...state,
             changingRoom: false,
             title: action.payload.title, 
+            coordinates: action.payload.coordinates,
             cooldown: action.payload.cooldown, 
             description: action.payload.description,
             exits: action.payload.exits,

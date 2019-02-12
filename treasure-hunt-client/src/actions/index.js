@@ -31,6 +31,9 @@ const headers = {
     'Authorization': `Token ${token}`
 }
 
+let graph = {}
+let coordinates = {}
+
 export const fetchRoom = () => dispatch => {
   dispatch({type: FETCH_ROOM });
   axios
@@ -45,15 +48,27 @@ export const fetchRoom = () => dispatch => {
 
 export const changeRoom = (e, dir) => dispatch => {
     e.preventDefault()
+    let lastRoomID
+    axios
+        .get(curRoomURL, {headers: headers})
+        .then(res => {
+            lastRoomID = res.data.room_id
+        })
+    
     dispatch({type: CHANGE_ROOM});
     axios
         .post(moveURL, {"direction": dir}, {headers: headers})
         .then(res => {
             dispatch({type: CHANGE_ROOM_SUCCESS, payload: res.data})
+            console.log(lastRoomID)
         })
         .catch(error => {
             dispatch({type: CHANGE_ROOM_FAILURE, payload: error})
         })
+}
+
+const updateGraph = (roomID) => {
+
 }
 
 export const getItem = (e, item) => dispatch => {
