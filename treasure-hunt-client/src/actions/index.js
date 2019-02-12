@@ -48,7 +48,7 @@ export const fetchRoom = () => dispatch => {
     })
 }
 
-export const changeRoom = (e, dir) => dispatch => {
+export const changeRoom = (e, dir, next) => dispatch => {
     e.preventDefault()
     let lastRoomID
     axios
@@ -62,7 +62,7 @@ export const changeRoom = (e, dir) => dispatch => {
     
     dispatch({type: CHANGE_ROOM});
     axios
-        .post(moveURL, {"direction": dir}, {headers: headers})
+        .post(moveURL, {"direction": dir, "next_room_id": next}, {headers: headers})
         .then(res => {
             dispatch({type: CHANGE_ROOM_SUCCESS, payload: res.data})
             if (lastRoomID === undefined) {

@@ -20,14 +20,19 @@ class WorldInteraction extends Component {
     automatedTraversal = (e) => {
         let roomID = this.props.curRoomID;
         e.preventDefault();
-        console.log(graph[roomID])
-        while (Object.keys(graph).length < 10) {
-            for (let e in graph[roomID]) {
-                if (graph[roomID][e] === "?") {
-                    console.log(e);
-                    setTimeout(changeRoom(e), this.props.cooldown * 1000);
-                }
+        for (let exit in graph[roomID]) {
+            if (graph[roomID][exit] === "?") {
+                console.log(exit);
+                console.log(this.props.cooldown)
+                this.props.changeRoom(e, exit)
+                break;
             }
+        // while (Object.keys(graph).length < 10) {
+        
+        //     }
+        }
+        if (Object.keys(graph).length < 20) {
+            setTimeout(this.automatedTraversal, this.props.cooldown, e)
         }
     }
 
