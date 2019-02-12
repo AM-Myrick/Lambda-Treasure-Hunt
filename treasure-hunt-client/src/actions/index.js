@@ -50,6 +50,11 @@ export const fetchRoom = () => dispatch => {
 
 export const changeRoom = (e, dir, next) => dispatch => {
     e.preventDefault()
+    // console.log("before", next)
+    // if (next !== undefined) {
+    //     next = next.toString();
+    // }
+    // console.log("afteR", next)
     let lastRoomID
     axios
         .get(curRoomURL, {headers: headers})
@@ -61,19 +66,19 @@ export const changeRoom = (e, dir, next) => dispatch => {
         })
     
     dispatch({type: CHANGE_ROOM});
-    axios
+    setTimeout(axios
         .post(moveURL, {"direction": dir, "next_room_id": next}, {headers: headers})
         .then(res => {
             dispatch({type: CHANGE_ROOM_SUCCESS, payload: res.data})
             if (lastRoomID === undefined) {
-                lastRoomID = 0
+                lastRoomID = "?"
             }
             populateGraph(res.data.room_id, res.data.exits)
             updateGraph(lastRoomID, res.data.room_id, dir)
         })
         .catch(error => {
             dispatch({type: CHANGE_ROOM_FAILURE, payload: error})
-        })
+        }), 1500)
 }
 
 const populateGraph = (curID, exits) => {

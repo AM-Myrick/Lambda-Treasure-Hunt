@@ -32,7 +32,7 @@ class WorldInteraction extends Component {
         //     }
         }
         if (Object.keys(graph).length < 20) {
-            setTimeout(this.automatedTraversal, this.props.cooldown, e)
+            setTimeout(this.automatedTraversal, this.props.cooldown * 1000, e)
         }
     }
 
