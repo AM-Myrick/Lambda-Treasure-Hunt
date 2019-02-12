@@ -40,6 +40,8 @@ export const fetchRoom = () => dispatch => {
     .get(curRoomURL, {headers: headers})
     .then(res => {
       dispatch({type: FETCH_ROOM_SUCCESS, payload: res.data})
+      populateGraph(res.data.room_id, res.data.exits)
+      console.log(graph)
     })
     .catch(error => {
       dispatch({type: FETCH_ROOM_FAILURE, payload: error})
@@ -54,21 +56,53 @@ export const changeRoom = (e, dir) => dispatch => {
         .then(res => {
             lastRoomID = res.data.room_id
         })
+        .catch(err => {
+            console.log(err)
+        })
     
     dispatch({type: CHANGE_ROOM});
     axios
         .post(moveURL, {"direction": dir}, {headers: headers})
         .then(res => {
             dispatch({type: CHANGE_ROOM_SUCCESS, payload: res.data})
-            console.log(lastRoomID)
+            if (lastRoomID === undefined) {
+                lastRoomID = 0
+            }
+            populateGraph(res.data.room_id, res.data.exits)
+            updateGraph(lastRoomID, res.data.room_id, dir)
         })
         .catch(error => {
             dispatch({type: CHANGE_ROOM_FAILURE, payload: error})
         })
 }
 
-const updateGraph = (roomID) => {
+const populateGraph = (curID, exits) => {
+    graph = JSON.parse(localStorage.getItem("map"));
+    if (graph.hasOwnProperty(curID) === false) {
+        graph[curID] = {};
+        for (let e of exits) {
+            graph[curID][e] = "?";
+        }
+    } else {
+        return;
+    }
+}
 
+const updateGraph = (prevID, curID, dir) => {
+    graph[prevID][dir] = curID;
+    if (dir === "n") {
+        graph[curID]["s"] = prevID;
+    }
+    if (dir === "s") {
+        graph[curID]["n"] = prevID;
+    }
+    if (dir === "e") {
+        graph[curID]["w"] = prevID;
+    }
+    if (dir === "w") {
+        graph[curID]["e"] = prevID;
+    }
+    localStorage.setItem("map", JSON.stringify(graph))
 }
 
 export const getItem = (e, item) => dispatch => {
