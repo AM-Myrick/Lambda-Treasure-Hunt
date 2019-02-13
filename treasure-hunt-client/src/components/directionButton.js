@@ -1,12 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from "react-redux";
-import { changeRoom, graph } from "../actions";
+import { changeRoom } from "../actions";
 
 let nextID
 class DirectionButton extends Component {
-    constructor(props){
-        super(props);
-    }
 
     render() {
         // attempt to get wise explorer, buggy

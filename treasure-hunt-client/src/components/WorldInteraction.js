@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from "react-redux";
-import { getItem, dropItem, sellItem, prayAtShrine, changeRoom, graph } from "../actions";
+import { getItem, dropItem, sellItem, prayAtShrine, changeRoom, graph, wait } from "../actions";
 
 class WorldInteraction extends Component {
     constructor(props) {
@@ -19,20 +19,30 @@ class WorldInteraction extends Component {
 
     bfs = (start) => {
         let q = [];
-        q.push(start);
+        q.push([start]);
         let visited = new Set();
+        let path;
+        let new_path;
+        let v;
 
-        while (q.length > 0) {
-            let path = q.shift();
-            let v = path[-1];
+        while (q.length) {
+            path = q.shift();
+            console.log(path);
+            v = path[path.length - 1];
+            console.log(v);
             if (Object.values(graph[v]).includes("?")) {
-                let new_path = Array.from(path)
-                new_path.push(v)
-                return new_path
+                new_path = Array.from(path);
+                new_path.push(v);
+                console.log(new_path);
+                return new_path;
             }
             if (visited.has(v) === false) {
                 visited.add(v);
-
+                for (let key in graph[v]) {
+                    new_path = Array.from(path);
+                    new_path.push(graph[v][key]);
+                    q.push(new_path)
+                }
             }
         }
     }
@@ -61,24 +71,43 @@ class WorldInteraction extends Component {
     automatedTraversal = (e) => {
         let roomID = this.props.curRoomID;
         e.preventDefault();
+        e.persist();
         for (let exit in graph[roomID]) {
             if (graph[roomID][exit] === "?") {
                 console.log(exit);
                 console.log(this.props.cooldown)
-                this.props.changeRoom(e, exit)
+                this.props.changeRoom(e, exit);
+                wait(this.props.cooldown * 2000)
                 break;
             }
         }
         if (Object.values(graph[roomID]).includes('?') === false) {
             for (let key in graph) {
                 if (Object.values(graph[key]).includes("?")) {
+                    let path = this.bfs(roomID);
+                    console.log(path);
+                    for(let i of path) {
+                        if (i === roomID) {
+                            continue;
+                        } else {
+                            for (let j in graph[roomID]) {
+                                if (graph[roomID][j] === i) {
+                                    this.props.changeRoom(e, j);
+                                    wait(this.props.cooldown * 2000)
+                                    roomID = graph[roomID][j];
+                                    console.log(roomID);
+                                    break;
+                                }
+                            }
+                        }
 
+                    }
                 }
             }
         }
         
-        if (Object.keys(graph).length < 30) {
-            setTimeout(this.automatedTraversal, this.props.cooldown * 1000, e)
+        if (Object.keys(graph).length < 10) {
+            setTimeout(this.automatedTraversal, this.props.cooldown * 1200, e)
         } else {
             return;
         }
@@ -168,5 +197,5 @@ const mapStateToProps = state => {
 }
 export default connect(
     mapStateToProps,
-    { getItem, dropItem, sellItem, prayAtShrine, changeRoom }
+    { getItem, dropItem, sellItem, prayAtShrine, changeRoom, wait }
 )(WorldInteraction);

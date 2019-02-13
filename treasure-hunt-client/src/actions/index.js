@@ -34,7 +34,7 @@ const headers = {
 export let graph = {}
 // let coordinates = {}
 let lastRoomID
-const wait = ms => new Promise((r, j)=>setTimeout(r, ms))
+export const wait = ms => new Promise((r, j)=>setTimeout(r, ms))
 
 export const fetchRoom = () => dispatch => {
   dispatch({type: FETCH_ROOM });
@@ -57,8 +57,6 @@ const fetchRoomForGraph = () => {
         .then(res => {
             lastRoomID = res.data.room_id;
             console.log(lastRoomID);
-            (async () => { await wait(2000); console.warn('done') })()
-
         })
         .catch(err => {
             console.log(err)
@@ -75,21 +73,24 @@ export const changeRoom = (e, dir, next) => dispatch => {
     
     fetchRoomForGraph()
     
-    
-    dispatch({type: CHANGE_ROOM});
-    axios
-        .post(moveURL, {"direction": dir, "next_room_id": next}, {headers: headers})
-        .then(res => {
-            dispatch({type: CHANGE_ROOM_SUCCESS, payload: res.data})
-            populateGraph(res.data.room_id, res.data.exits)
-            if (lastRoomID !== undefined) {
-                updateGraph(lastRoomID, res.data.room_id, dir);
-                lastRoomID = undefined;
-            }
-        })
-        .catch(error => {
-            dispatch({type: CHANGE_ROOM_FAILURE, payload: error})
-        })
+    console.time("Time this");
+    wait(2000).then(() => {
+        console.timeEnd("Time this")
+        dispatch({type: CHANGE_ROOM});
+        axios
+            .post(moveURL, {"direction": dir, "next_room_id": next}, {headers: headers})
+            .then(res => {
+                dispatch({type: CHANGE_ROOM_SUCCESS, payload: res.data})
+                populateGraph(res.data.room_id, res.data.exits)
+                if (lastRoomID !== undefined) {
+                    updateGraph(lastRoomID, res.data.room_id, dir);
+                    lastRoomID = undefined;
+                }
+            })
+            .catch(error => {
+                dispatch({type: CHANGE_ROOM_FAILURE, payload: error})
+            })
+    })
 }
 
 const populateGraph = (curID, exits) => {
