@@ -33,6 +33,8 @@ const headers = {
 
 export let graph = {}
 // let coordinates = {}
+let lastRoomID
+const wait = ms => new Promise((r, j)=>setTimeout(r, ms))
 
 export const fetchRoom = () => dispatch => {
   dispatch({type: FETCH_ROOM });
@@ -48,6 +50,21 @@ export const fetchRoom = () => dispatch => {
     })
 }
 
+const fetchRoomForGraph = () => {
+    console.log("fetch)")
+    axios
+        .get(curRoomURL, {headers: headers})
+        .then(res => {
+            lastRoomID = res.data.room_id;
+            console.log(lastRoomID);
+            (async () => { await wait(2000); console.warn('done') })()
+
+        })
+        .catch(err => {
+            console.log(err)
+        })
+}
+
 export const changeRoom = (e, dir, next) => dispatch => {
     e.preventDefault()
     // console.log("before", next)
@@ -55,30 +72,24 @@ export const changeRoom = (e, dir, next) => dispatch => {
     //     next = next.toString();
     // }
     // console.log("afteR", next)
-    let lastRoomID
-    axios
-        .get(curRoomURL, {headers: headers})
-        .then(res => {
-            lastRoomID = res.data.room_id
-        })
-        .catch(err => {
-            console.log(err)
-        })
+    
+    fetchRoomForGraph()
+    
     
     dispatch({type: CHANGE_ROOM});
-    setTimeout(axios
+    axios
         .post(moveURL, {"direction": dir, "next_room_id": next}, {headers: headers})
         .then(res => {
             dispatch({type: CHANGE_ROOM_SUCCESS, payload: res.data})
-            if (lastRoomID === undefined) {
-                lastRoomID = "?"
-            }
             populateGraph(res.data.room_id, res.data.exits)
-            updateGraph(lastRoomID, res.data.room_id, dir)
+            if (lastRoomID !== undefined) {
+                updateGraph(lastRoomID, res.data.room_id, dir);
+                lastRoomID = undefined;
+            }
         })
         .catch(error => {
             dispatch({type: CHANGE_ROOM_FAILURE, payload: error})
-        }), 1500)
+        })
 }
 
 const populateGraph = (curID, exits) => {

@@ -11,12 +11,13 @@ class GameMapStatus extends Component {
     render() {
         return (
             <div>
-                <p>{this.props.title}</p>
-                <p>{this.props.coordinates}</p>
-                <p>{this.props.cooldown}</p>
-                <p>{this.props.description}</p>
-                <p>{this.props.exits}</p>
-                <p>{this.props.items}</p>
+                <p>Current Room # is {this.props.curRoomID}</p>
+                <p>Room Title: {this.props.title}</p>
+                <p>Room Coordinates: {this.props.coordinates}</p>
+                <p>Cooldown: {this.props.cooldown}</p>
+                <p>Room Description: {this.props.description}</p>
+                <p>Exits: {this.props.exits}</p>
+                <p>Items: {this.props.items}</p>
             </div>
         );
     }
@@ -26,6 +27,7 @@ const mapStateToProps = state => {
     return {
         title: state.title,
         coordinates: state.coordinates,
+        curRoomID: state.curRoomID,
         cooldown: state.cooldown,
         description: state.description,
         exits: state.exits,
