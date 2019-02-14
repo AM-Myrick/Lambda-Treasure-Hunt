@@ -16,7 +16,6 @@ const headers = {
 }
 
 let graph = {};
-let lastRoomID;
 class App extends Component {
   constructor(props) {
     super(props);
@@ -33,7 +32,7 @@ class App extends Component {
       players: "",
       terrain: "",
     }
-    
+    this.automatedTraversal = this.automatedTraversal.bind(this);
   }
 
   componentDidMount() {
@@ -46,10 +45,7 @@ class App extends Component {
       .then(res => {
         const {room_id, title, description, coordinates, cooldown, elevation, exits, items, messages, players, terrain} = res.data;
         this.setState({ ...this.state, room_id, title, description, coordinates, cooldown, elevation, exits, items, messages, players, terrain});
-        if (lastRoomID === undefined) {
-          lastRoomID = this.state.room_id;
-        }
-        this.populateGraph(this.state.room_id, this.state.exits);
+        this.populateGraph(room_id, exits);
         console.log(this.state.room_id);
       })
       .catch(error => {
@@ -62,9 +58,10 @@ class App extends Component {
       .post(`${baseURL}/fly`, {"direction": dir, "next_room_id": next}, {headers: headers})
       .then(res => {
         const {room_id, title, description, coordinates, cooldown, elevation, exits, items, messages, players, terrain} = res.data;
+        this.populateGraph(room_id, exits);
+        this.updateGraph(this.state.room_id, room_id, dir);
         this.setState({ ...this.state, room_id, title, description, coordinates, cooldown, elevation, exits, items, messages, players, terrain});
-        this.populateGraph(this.state.room_id, this.state.exits);
-        this.updateGraph(lastRoomID, this.state.room_id, dir);
+        
         console.log("changing", Math.floor(Date.now() / 1000))
       })
       .catch(error => {
@@ -73,18 +70,26 @@ class App extends Component {
   }
 
   populateGraph = (curID, exits) => {
-    graph = JSON.parse(localStorage.getItem("map"));
+    if (Object.keys(JSON.parse(localStorage.getItem("map"))).length > 0) {
+      graph = JSON.parse(localStorage.getItem("map"));
+    } 
+    
     if (graph.hasOwnProperty(curID) === false) {
         graph[curID] = {};
         for (let e of exits) {
             graph[curID][e] = "?";
         }
+        localStorage.setItem("map", JSON.stringify(graph));
     } else {
         return;
     }
   }
 
   updateGraph = (prevID, curID, dir) => {
+    console.log(graph);
+    if (prevID === curID) {
+      return
+    }
     graph[prevID][dir] = curID;
     if (dir === "n") {
         graph[curID]["s"] = prevID;
@@ -98,7 +103,6 @@ class App extends Component {
     if (dir === "w") {
         graph[curID]["e"] = prevID;
     }
-    lastRoomID = this.state.room_id;
     localStorage.setItem("map", JSON.stringify(graph))
   }
 
@@ -132,54 +136,57 @@ class App extends Component {
     }
 }
 
-automatedTraversal = () => {
-  let roomID = this.state.room_id
+  sleep = ms => {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  };
+
+async automatedTraversal() {
   let exit;
-  for (exit in graph[roomID]) {
-    if (graph[roomID][exit] === "?") {
-        console.log(exit);
-        setTimeout(this.changeRoom, this.state.cooldown * 2500, exit);
-        break;
-    }
-  }
-  let path;
-  while (Object.values(graph[roomID]).includes('?') === false) {
-      if (path === undefined) {
-          path = this.bfs(roomID);
-      } 
-      console.log(path, path.length, graph[roomID]);
-      if (path.length === 0) {
+  while(Object.keys(graph).length < 500) {
+    for (exit in graph[this.state.room_id]) {
+      if (graph[this.state.room_id][exit] === "?") {
+          console.log(exit);
+          // setTimeout(this.changeRoom, this.state.cooldown * 2500, exit);
+          this.changeRoom(exit);
           break;
       }
-      if (path[0] === roomID) {
-          path.shift();
-          console.log(path);
-      }
-      if (path[0] === graph[roomID]["n"]) {
-        setTimeout(this.changeRoom, this.state.cooldown * 2500, "n");
-        break;
-      }
-      if (path[0] === graph[roomID]["s"]) {
-        setTimeout(this.changeRoom, this.state.cooldown * 2500, "s");
-        break;
-      }
-      if (path[0] === graph[roomID]["e"]) {
-        setTimeout(this.changeRoom, this.state.cooldown * 2500, "e");
-        break;
-      }
-      if (path[0] === graph[roomID]["w"]) {
-        console.log("inside w")
-        setTimeout(this.changeRoom, this.state.cooldown * 2500, "w");
-        break;
-      }
-          }
-      
-  
-  if (Object.keys(graph).length < 50) {
-      setTimeout(this.automatedTraversal, this.state.cooldown * 2500);
-  } else {
-      return;
+    }
+    await this.sleep(this.state.cooldown * 1100);
+    let path;
+    if (Object.values(graph[this.state.room_id]).includes('?') === false) {
+        if (path === undefined) {
+            path = this.bfs(this.state.room_id);
+        } 
+        console.log(this.state.room_id)
+        console.log(path, path.length, graph[this.state.room_id]);
+        if (path[0] === this.state.room_id) {
+            path.shift();
+            console.log(path);
+        }
+        if (path[0] === graph[this.state.room_id]["n"]) {
+          
+          this.changeRoom("n", path[0].toString());
+        }
+        if (path[0] === graph[this.state.room_id]["s"]) {
+          this.changeRoom("s", path[0].toString());
+        }
+        if (path[0] === graph[this.state.room_id]["e"]) {
+          this.changeRoom("e", path[0].toString());
+        }
+        if (path[0] === graph[this.state.room_id]["w"]) {
+          console.log("inside w")
+          this.changeRoom("w", path[0].toString());
+        }
+    }
+    await this.sleep(this.state.cooldown * 1100);
   }
+      console.log("you did it!")
+  
+  // if (Object.keys(graph).length < 50) {
+  //     setTimeout(this.automatedTraversal, this.state.cooldown * 2500);
+  // } else {
+  //     return;
+  // }
 }
   
   render() {
@@ -189,7 +196,7 @@ automatedTraversal = () => {
         <DirectionButton direction="South" changeRoom={this.changeRoom}/>
         <DirectionButton direction="East" changeRoom={this.changeRoom}/>
         <DirectionButton direction="West" changeRoom={this.changeRoom}/>
-        <div onClick={e => this.automatedTraversal()}>Explore</div>
+        <div onClick={this.automatedTraversal}>Explore</div>
         <p>Current Room # is {this.state.room_id}</p>
         <p>Room Title: {this.state.title}</p>
         <p>Room Coordinates: {this.state.coordinates}</p>
