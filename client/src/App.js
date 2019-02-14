@@ -15,7 +15,7 @@ const headers = {
   'Authorization': `Token ${token}`
 }
 
-// let graph = {};
+let graph = {};
 // let lastRoomID;
 class App extends Component {
   constructor(props) {
@@ -31,7 +31,8 @@ class App extends Component {
       items: "",
       messages: "",
       players: "",
-      terrain: ""
+      terrain: "",
+      lastRoomID: false,
     }
     
   }
@@ -49,6 +50,10 @@ class App extends Component {
       .then(res => {
         const {room_id, title, description, coordinates, cooldown, elevation, exits, items, messages, players, terrain} = res.data;
         this.setState({ ...this.state, room_id, title, description, coordinates, cooldown, elevation, exits, items, messages, players, terrain});
+        if (this.state.lastRoomID === false) {
+          this.setState({lastRoomID: this.state.room_id});
+          console.log(this.state.lastRoomID)
+        }
       })
       .catch(error => {
         console.log(error);
@@ -61,10 +66,44 @@ class App extends Component {
       .then(res => {
         const {room_id, title, description, coordinates, cooldown, elevation, exits, items, messages, players, terrain} = res.data;
         this.setState({ ...this.state, room_id, title, description, coordinates, cooldown, elevation, exits, items, messages, players, terrain});
+        this.populateGraph(this.state.room_id, this.state.exits);
+        this.updateGraph(this.state.lastRoomID, this.state.room_id, dir);
       })
       .catch(error => {
         console.log(error);
       })
+  }
+
+  populateGraph = (curID, exits) => {
+    graph = JSON.parse(localStorage.getItem("map"));
+    if (graph.hasOwnProperty(curID) === false) {
+        graph[curID] = {};
+        for (let e of exits) {
+            graph[curID][e] = "?";
+        }
+    } else {
+        return;
+    }
+  }
+
+  updateGraph = (prevID, curID, dir) => {
+    graph[prevID][dir] = curID;
+    if (dir === "n") {
+        graph[curID]["s"] = prevID;
+    }
+    if (dir === "s") {
+        graph[curID]["n"] = prevID;
+    }
+    if (dir === "e") {
+        graph[curID]["w"] = prevID;
+    }
+    if (dir === "w") {
+        graph[curID]["e"] = prevID;
+    }
+    console.log(this.state.lastRoomID);
+    this.setState({ lastRoomID: this.state.room_id })
+    console.log(this.state.lastRoomID);
+    localStorage.setItem("map", JSON.stringify(graph))
   }
   
   render() {
