@@ -63,8 +63,9 @@ const fetchRoomForGraph = () => {
         })
 }
 
-export const changeRoom = (e, dir, next) => dispatch => {
+export const changeRoom = (e, dir, next=undefined) => dispatch => {
     e.preventDefault()
+    console.log("in change room");
     // console.log("before", next)
     // if (next !== undefined) {
     //     next = next.toString();
@@ -73,9 +74,9 @@ export const changeRoom = (e, dir, next) => dispatch => {
     
     fetchRoomForGraph()
     
-    console.time("Time this");
+    // console.time("Time this");
     wait(2000).then(() => {
-        console.timeEnd("Time this")
+        // console.timeEnd("Time this")
         dispatch({type: CHANGE_ROOM});
         axios
             .post(moveURL, {"direction": dir, "next_room_id": next}, {headers: headers})

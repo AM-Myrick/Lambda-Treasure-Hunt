@@ -67,7 +67,7 @@ class WorldInteraction extends Component {
     //                 new_path.append(v)
     //                 q.enqueue(new_path)
     //     return None
-
+    
     automatedTraversal = (e) => {
         let roomID = this.props.curRoomID;
         e.preventDefault();
@@ -76,69 +76,74 @@ class WorldInteraction extends Component {
             if (graph[roomID][exit] === "?") {
                 console.log(exit);
                 console.log(this.props.cooldown)
-                this.props.changeRoom(e, exit);
-                wait(this.props.cooldown * 2000)
+                wait(this.props.cooldown * 5000).then(() => {
+                    this.props.changeRoom(e, exit);
+                })
+            }
+        }
+        let path;
+        while (Object.values(graph[roomID]).includes('?') === false) {
+            if (path === undefined) {
+                path = this.bfs(roomID);
+            } 
+            console.log(path, path.length);
+            if (path.length === 0) {
                 break;
             }
-        }
-        if (Object.values(graph[roomID]).includes('?') === false) {
-            for (let key in graph) {
-                if (Object.values(graph[key]).includes("?")) {
-                    let path = this.bfs(roomID);
-                    console.log(path);
-                    for(let i of path) {
-                        if (i === roomID) {
-                            continue;
-                        } else {
-                            for (let j in graph[roomID]) {
-                                if (graph[roomID][j] === i) {
-                                    this.props.changeRoom(e, j);
-                                    wait(this.props.cooldown * 2000)
-                                    roomID = graph[roomID][j];
-                                    console.log(roomID);
-                                    break;
-                                }
-                            }
-                        }
-
-                    }
-                }
+            if (path[0] === roomID) {
+                path.shift();
+                console.log(path);
             }
-        }
+            if (path[0] === graph[roomID]["n"]) {
+                console.log(e)
+                this.delayedChangeRoom(e, "n");
+            }
+            if (path[0] === graph[roomID]["s"]) {
+                this.delayedChangeRoom(e, "s");
+            }
+            if (path[0] === graph[roomID]["e"]) {
+                this.delayedChangeRoom(e, "e");
+            }
+            if (path[0] === graph[roomID]["w"]) {
+                this.delayedChangeRoom(e, "w");
+            }
+        // if (Object.values(graph[roomID]).includes('?') === false) {
+        //     for (let key in graph) {
+        //         if (Object.values(graph[key]).includes("?")) {
+        //             let path = this.bfs(roomID);
+        //             console.log(path);
+                    // for(let i of path) {
+                    //     if (i === roomID) {
+                    //         continue;
+                    //     } else {
+                    //         for (let j in graph[roomID]) {
+                    //             console.log(j)
+                    //             if (graph[roomID][j] === i) {
+                    //                 wait(5000).then(() => {
+                    //                     this.props.changeRoom(e, j);
+                    //                     console.log("roomID", roomID);
+                    //                 })
+                    //             }
+                    //         }
+                    //     }
+
+                    // }
+                }
+            
         
         if (Object.keys(graph).length < 10) {
-            setTimeout(this.automatedTraversal, this.props.cooldown * 1200, e)
+            this.automatedTraversal(e);
         } else {
             return;
         }
     }
 
-    // for e in graph[player.currentRoom.id]:
-    //         if graph[player.currentRoom.id][e] == "?":
-    //             print(player.currentRoom.id, graph[player.currentRoom.id], e)
-    //             move = e
-    //             traversalPath.append(move)
-    //             player.travel(move)
-    //             visited_rooms.add(player.currentRoom.id)
-    //             populateGraph(player.currentRoom)
-    //             updateGraph(lastRoom.id, player.currentRoom.id, move)
-    //             lastRoom = player.currentRoom
-    //             break
-    //         if "?" not in list(graph[player.currentRoom.id].values()):
-    //             for k, v in graph.items():
-    //                 if "?" in v.values():
-    //                     path = bfs_path(player.currentRoom.id)
-    //                     print(path)
-    //                     for i in path:
-    //                         for k, v in graph[player.currentRoom.id].items():
-    //                             if v == i:
-    //                                 traversalPath.append(k)
-    //                                 player.travel(k)
-    //                                 visited_rooms.add(player.currentRoom.id)
-    //                                 populateGraph(player.currentRoom)
-    //                                 updateGraph(lastRoom.id, player.currentRoom.id, k)
-    //                                 lastRoom = player.currentRoom
-    //                                 if "?" in list(graph[player.currentRoom.id].values()):
+    delayedChangeRoom = (e, dir) => {
+        e.persist();
+        wait(5000).then(() => {
+            this.props.changeRoom(e, dir);
+        })
+    }
 
     render() {
         return (
