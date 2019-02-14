@@ -15,19 +15,31 @@ const headers = {
   'Authorization': `Token ${token}`
 }
 
-let graph = {};
-let lastRoomID;
+// let graph = {};
+// let lastRoomID;
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-
+      room_id: "",
+      title: "",
+      description: "",
+      coordinates: "",
+      cooldown: "",
+      elevation: "",
+      exits: "",
+      items: "",
+      messages: "",
+      players: "",
+      terrain: ""
     }
+    
   }
 
   componentDidMount() {
     this.fetchRoom();
   }
+  
 
   wait = ms => new Promise((r, j)=>setTimeout(r, ms))
 
@@ -35,9 +47,8 @@ class App extends Component {
     axios
       .get(`${baseURL}/init`, {headers: headers})
       .then(res => {
-        console.log(res.data);
-        // populateGraph(res.data.room_id, res.data.exits)
-        // console.log(graph)
+        const {room_id, title, description, coordinates, cooldown, elevation, exits, items, messages, players, terrain} = res.data;
+        this.setState({ ...this.state, room_id, title, description, coordinates, cooldown, elevation, exits, items, messages, players, terrain});
       })
       .catch(error => {
         console.log(error);
@@ -48,7 +59,8 @@ class App extends Component {
     axios
       .post(`${baseURL}/fly`, {"direction": dir, "next_room_id": next}, {headers: headers})
       .then(res => {
-        console.log(res.data);
+        const {room_id, title, description, coordinates, cooldown, elevation, exits, items, messages, players, terrain} = res.data;
+        this.setState({ ...this.state, room_id, title, description, coordinates, cooldown, elevation, exits, items, messages, players, terrain});
       })
       .catch(error => {
         console.log(error);
@@ -62,6 +74,13 @@ class App extends Component {
         <DirectionButton direction="South" changeRoom={this.changeRoom}/>
         <DirectionButton direction="East" changeRoom={this.changeRoom}/>
         <DirectionButton direction="West" changeRoom={this.changeRoom}/>
+        <p>Current Room # is {this.state.room_id}</p>
+        <p>Room Title: {this.state.title}</p>
+        <p>Room Coordinates: {this.state.coordinates}</p>
+        <p>Cooldown: {this.state.cooldown}</p>
+        <p>Room Description: {this.state.description}</p>
+        <p>Exits: {this.state.exits}</p>
+        <p>Items: {this.state.items}</p>
       </div>
     );
   }
