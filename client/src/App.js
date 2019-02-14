@@ -143,6 +143,7 @@ class App extends Component {
 async automatedTraversal() {
   let exit;
   while(Object.keys(graph).length < 500) {
+    console.log(Object.keys(graph).length)
     for (exit in graph[this.state.room_id]) {
       if (graph[this.state.room_id][exit] === "?") {
           console.log(exit);
@@ -163,6 +164,7 @@ async automatedTraversal() {
             path.shift();
             console.log(path);
         }
+        await this.sleep(this.state.cooldown * 1100);
         if (path[0] === graph[this.state.room_id]["n"]) {
           
           this.changeRoom("n", path[0].toString());
