@@ -5,6 +5,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "react": "^16.8.1",
+    "react-d3-graph": "^2.0.0-rc2",
     "react-dom": "^16.8.1",
     "react-scripts": "2.1.5"
   },
