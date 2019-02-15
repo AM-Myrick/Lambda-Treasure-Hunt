@@ -71,12 +71,14 @@ class App extends Component {
       cooldown: "",
       elevation: "",
       exits: "",
-      items: "",
+      items: [],
       messages: "",
       players: "",
       terrain: "",
+      goTo: "",
     }
     this.automatedTraversal = this.automatedTraversal.bind(this);
+    this.automatedTraversalPath = this.automatedTraversalPath.bind(this);
   }
 
   componentDidMount() {
@@ -162,7 +164,7 @@ class App extends Component {
     localStorage.setItem("map", JSON.stringify(graph))
   }
 
-  bfs = (start) => {
+  bfs = (start, target="?") => {
     let q = [];
     q.push([start]);
     let visited = new Set();
@@ -174,12 +176,13 @@ class App extends Component {
         path = q.shift();
         console.log(path);
         v = path[path.length - 1];
-        console.log(v);
-        if (Object.values(graph[v]).includes("?")) { 
+        if (Object.values(graph[v]).includes(target)) { 
         // if (coordinates.hasOwnProperty(v) === false) {
             new_path = Array.from(path);
             new_path.push(v);
-            console.log(new_path);
+            if (target !== "?") {
+              new_path.push(target)
+            }
             return new_path;
         }
         if (visited.has(v) === false) {
@@ -196,6 +199,51 @@ class App extends Component {
   sleep = ms => {
     return new Promise(resolve => setTimeout(resolve, ms));
   };
+
+  changeHandler = (e) => {
+    const { name, value } = e.target;
+    this.setState({ ...this.state, [name]: value })
+  }
+
+  async automatedTraversalPath(start, target) {
+    let path = this.bfs(this.state.room_id, target);
+    console.log(path)
+    while (this.state.room_id !== target) {
+      if (path[0] === graph[this.state.room_id]["n"]) {
+        this.changeRoom("n", path[0].toString());
+      }
+      else if (path[0] === graph[this.state.room_id]["s"]) {
+        this.changeRoom("s", path[0].toString());
+      }
+      else if (path[0] === graph[this.state.room_id]["e"]) {
+        this.changeRoom("e", path[0].toString());
+      }
+      else if (path[0] === graph[this.state.room_id]["w"]) {
+        console.log("inside w")
+        this.changeRoom("w", path[0].toString());
+      }
+      while (this.state.items[0]) {
+        await this.sleep(this.state.cooldown * 1100);
+        console.log(this.state.items[0])
+        axios
+          .post(`${baseURL}/take`, {"name": this.state.items[0]}, {headers: headers})
+          .then(res => {
+            const {room_id, title, description, coordinates, cooldown, elevation, exits, items, messages, players, terrain} = res.data;
+            this.setState({ ...this.state, room_id, title, description, coordinates, cooldown, elevation, exits, items, messages, players, terrain});
+            console.log(res.data);
+          })
+          .catch(error => {
+            console.log(error);
+          })
+        await this.sleep(this.state.cooldown * 1100);
+      }
+      if (path[0] === this.state.room_id) {
+        path.shift();
+        console.log(path);
+      }
+      await this.sleep(this.state.cooldown * 1100);
+  }
+}
 
 async automatedTraversal() {
   console.log(Object.keys(graph).length)
@@ -258,6 +306,17 @@ async automatedTraversal() {
         <DirectionButton direction="East" changeRoom={this.changeRoom}/>
         <DirectionButton direction="West" changeRoom={this.changeRoom}/>
         <div onClick={this.automatedTraversal}>Explore</div>
+        <form onSubmit={() => this.automatedTraversalPath(this.state.room_id, this.state.goTo)}>
+                    <label>Go to:</label>
+                    <input 
+                        type="text" 
+                        id="goTo" 
+                        name="goTo" 
+                        className="input"
+                        value={this.state.goTo}
+                        onChange={this.changeHandler} />
+                    <div onClick={() => this.automatedTraversalPath(this.state.room_id, +this.state.goTo)}>Go To Room {this.state.goTo}</div>
+        </form>
         <p>Current Room # is {this.state.room_id}</p>
         <p>Room Title: {this.state.title}</p>
         <p>Room Coordinates: {this.state.coordinates}</p>
@@ -265,11 +324,11 @@ async automatedTraversal() {
         <p>Room Description: {this.state.description}</p>
         <p>Exits: {this.state.exits}</p>
         <p>Items: {this.state.items}</p>
-        {Object.keys(graph).length > 0 ?
+        {/* {Object.keys(graph).length > 0 ?
           
           <Graph graph={viz} options={options} events={events} /> :
           null 
-        }
+        } */}
       </div>
     );
   }
