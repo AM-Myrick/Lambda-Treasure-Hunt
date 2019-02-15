@@ -1,7 +1,49 @@
 import React, { Component } from 'react';
 import axios from "axios";
 import DirectionButton from "./components/DirectionButton.js";
-import Map from "./components/Map.js";
+import Graph from 'react-graph-vis';
+
+const viz = {
+  nodes: [
+      // {id: 1, label: 'Node 1'},
+      // {id: 2, label: 'Node 2'},
+      // {id: 3, label: 'Node 3'},
+      // {id: 4, label: 'Node 4'},
+      // {id: 5, label: 'Node 5'}
+    ],
+  edges: [
+      // {from: 1, to: 2},
+      // {from: 1, to: 3},
+      // {from: 2, to: 4},
+      // {from: 2, to: 5}
+    ]
+};
+
+
+const options = {
+  autoResize: true,
+  height: '550px',
+  width: '100%',
+  layout: {
+    improvedLayout: false
+  },
+  // nodes: {
+  //   physics: false
+  // },
+  edges: {
+      color: "#000000"
+  },
+  physics: {
+    maxVelocity: 10,
+    minVelocity: 0.1,
+  },
+};
+
+const events = {
+    select: function(event) {
+        var { nodes, edges } = event;
+    }
+}
 const token = process.env.REACT_APP_TOKEN;
 const baseURL = `https://lambda-treasure-hunt.herokuapp.com/api/adv`;
 // const curRoomURL = "https://lambda-treasure-hunt.herokuapp.com/api/adv/init/"
@@ -74,7 +116,7 @@ class App extends Component {
   }
 
   populateGraph = (curID, exits) => {
-    if (Object.keys(JSON.parse(localStorage.getItem("map"))).length > 0) {
+    if (localStorage.getItem("map")) {
       graph = JSON.parse(localStorage.getItem("map"));
     } 
     
@@ -133,8 +175,8 @@ class App extends Component {
         console.log(path);
         v = path[path.length - 1];
         console.log(v);
-        // if (Object.values(graph[v]).includes("?")) { 
-        if (coordinates.hasOwnProperty(v) === false) {
+        if (Object.values(graph[v]).includes("?")) { 
+        // if (coordinates.hasOwnProperty(v) === false) {
             new_path = Array.from(path);
             new_path.push(v);
             console.log(new_path);
@@ -200,6 +242,15 @@ async automatedTraversal() {
 }
   
   render() {
+    if (Object.keys(graph).length > 0) {
+      for (let room in graph) {
+        viz["nodes"].push({id: room, label: `Room ${room}`})
+        for (let exit in graph[room]) {
+          viz["edges"].push({from: room, to: graph[room][exit]})
+        }
+      }
+      console.log(viz["edges"])
+    }
     return (
       <div className="App">
         <DirectionButton direction="North" changeRoom={this.changeRoom}/>
@@ -214,9 +265,11 @@ async automatedTraversal() {
         <p>Room Description: {this.state.description}</p>
         <p>Exits: {this.state.exits}</p>
         <p>Items: {this.state.items}</p>
-        {Object.values(graph).length > 0 ?
-        <Map map={graph} coords={coordinates}/>:
-        null}
+        {Object.keys(graph).length > 0 ?
+          
+          <Graph graph={viz} options={options} events={events} /> :
+          null 
+        }
       </div>
     );
   }

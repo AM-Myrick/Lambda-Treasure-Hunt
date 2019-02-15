@@ -1,9 +1,5 @@
 import React, { Component } from 'react';
 class DirectionButton extends Component {
-    constructor(props) {
-        super(props);
-        
-    }
 
     render() {
         return (
