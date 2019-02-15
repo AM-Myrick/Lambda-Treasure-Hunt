@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import axios from "axios";
 import DirectionButton from "./components/DirectionButton.js";
+import Map from "./components/Map.js";
 const token = process.env.REACT_APP_TOKEN;
 const baseURL = `https://lambda-treasure-hunt.herokuapp.com/api/adv`;
 // const curRoomURL = "https://lambda-treasure-hunt.herokuapp.com/api/adv/init/"
@@ -16,6 +17,7 @@ const headers = {
 }
 
 let graph = {};
+let coordinates = {};
 class App extends Component {
   constructor(props) {
     super(props);
@@ -46,6 +48,7 @@ class App extends Component {
         const {room_id, title, description, coordinates, cooldown, elevation, exits, items, messages, players, terrain} = res.data;
         this.setState({ ...this.state, room_id, title, description, coordinates, cooldown, elevation, exits, items, messages, players, terrain});
         this.populateGraph(room_id, exits);
+        this.populateCoordinates(room_id, coordinates);
         console.log(this.state.room_id);
       })
       .catch(error => {
@@ -59,6 +62,7 @@ class App extends Component {
       .then(res => {
         const {room_id, title, description, coordinates, cooldown, elevation, exits, items, messages, players, terrain} = res.data;
         this.populateGraph(room_id, exits);
+        this.populateCoordinates(room_id, coordinates);
         this.updateGraph(this.state.room_id, room_id, dir);
         this.setState({ ...this.state, room_id, title, description, coordinates, cooldown, elevation, exits, items, messages, players, terrain});
         
@@ -80,8 +84,18 @@ class App extends Component {
             graph[curID][e] = "?";
         }
         localStorage.setItem("map", JSON.stringify(graph));
-    } else {
-        return;
+    }
+  }
+
+  populateCoordinates = (id, c) => {
+    if (localStorage.getItem("coords")) {
+      coordinates = JSON.parse(localStorage.getItem("coords"));
+    } 
+
+    if (coordinates.hasOwnProperty(id) === false) {
+      coordinates[id] = c.replace(/["()]/gi, '').split(",")
+      localStorage.setItem("coords", JSON.stringify(coordinates));
+      console.log(coordinates);
     }
   }
 
@@ -119,7 +133,8 @@ class App extends Component {
         console.log(path);
         v = path[path.length - 1];
         console.log(v);
-        if (Object.values(graph[v]).includes("?")) {
+        // if (Object.values(graph[v]).includes("?")) { 
+        if (coordinates.hasOwnProperty(v) === false) {
             new_path = Array.from(path);
             new_path.push(v);
             console.log(new_path);
@@ -141,10 +156,10 @@ class App extends Component {
   };
 
 async automatedTraversal() {
-  let exit;
-  while(Object.keys(graph).length < 500) {
-    console.log(Object.keys(graph).length)
-    for (exit in graph[this.state.room_id]) {
+  console.log(Object.keys(graph).length)
+  while(Object.keys(graph).length < 500 || Object.keys(coordinates).length < 500) {
+    console.log(Object.keys(coordinates).length)
+    for (let exit in graph[this.state.room_id]) {
       if (graph[this.state.room_id][exit] === "?") {
           console.log(exit);
           // setTimeout(this.changeRoom, this.state.cooldown * 2500, exit);
@@ -159,7 +174,6 @@ async automatedTraversal() {
             path = this.bfs(this.state.room_id);
         } 
         console.log(this.state.room_id)
-        console.log(path, path.length, graph[this.state.room_id]);
         if (path[0] === this.state.room_id) {
             path.shift();
             console.log(path);
@@ -182,13 +196,7 @@ async automatedTraversal() {
     }
     await this.sleep(this.state.cooldown * 1100);
   }
-      console.log("you did it!")
-  
-  // if (Object.keys(graph).length < 50) {
-  //     setTimeout(this.automatedTraversal, this.state.cooldown * 2500);
-  // } else {
-  //     return;
-  // }
+      console.log("you traveled the whole map!")
 }
   
   render() {
@@ -206,6 +214,9 @@ async automatedTraversal() {
         <p>Room Description: {this.state.description}</p>
         <p>Exits: {this.state.exits}</p>
         <p>Items: {this.state.items}</p>
+        {Object.values(graph).length > 0 ?
+        <Map map={graph} coords={coordinates}/>:
+        null}
       </div>
     );
   }
